@@ -20,18 +20,32 @@ startstring:
     .global	towers
 towers:
    /* Save calllee-saved registers to stack */
-   
+   sub sp, sp, #45       /* reserve 32 bytes for 5 callee-save registers */
+   str x23, [x29, #-40]  /* local variable e = steps */
+   str x22, [x29, #-32]  /* local variable d = peg */
+   str x21, [x29, #-24]  /* c = goal */
+   str x20, [x29, #-16]  /* b = start */
+   str x19, [x29, #-8]   /* a = numDiscs */
+
    /* Save a copy of all 3 incoming parameters to callee-saved registers */
+   ldr x19, [x29, #16]   /* a = numDiscs */
+   ldr x20, [x29, #24]   /* b = start */
+   ldr x21, [x29, #32]   /* c = goal */
 
 if:
    /* Compare numDisks with 2 or (numDisks - 2)*/
+      CMP x19, #-2
    /* Check if less than, else branch to else */
+   B.N else
    
    /* set print function's start to incoming start */
+                                                                                /* ENDED HERE !!!! */
+   
    /* set print function's end to goal */
    /* call print function */
    /* Set return register to 1 */
    /* branch to endif */
+
 else:
    /* Use a callee-saved varable for temp and set it to 6 */
    /* Subract start from temp and store to itself */

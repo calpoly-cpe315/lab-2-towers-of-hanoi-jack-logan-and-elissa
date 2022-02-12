@@ -19,61 +19,34 @@ startstring:
 
     .global	towers
 towers:
-   /* Callee setup ???? */
-   // think this line doesn't work, gives us massive error -> sub sp, sp, #8 // for return value (above the return address x30)
    /* Save callee-saved registers to stack */
-   stp x29, x30, [sp, -64]!   // Store FP, LR, move SP, reserver 6 registers space
+   stp x29, x30, [sp, -64]!   // Store FP, LR, move SP, reserve 6 registers space
    mov x29, sp                // Make FP = new SP
    stp x19, x20, [sp, 16]     //x19 = numDisks, x20 = start
    stp x21, x22, [sp, 32]     //x21 = goal, x22 = peg
-   stp x23, x24, [sp, 48]     //x23 = steps, x24 = ???
+   stp x23, x24, [sp, 48]     //x23 = steps, x24 = unused
 
    /* Save a copy of all 3 incoming parameters to callee-saved registers */
    mov x19, x0 //numDisks
    mov x20, x1 //start
    mov x21, x2 //goal
 
-   /* DON'T THINK WE NEED THIS
-   str x22, [x29, #-32]    // local variable d = temp = peg
-   str x23, [x29, #-40]    // local variable e = steps
-   */
-
-   //todo
-
-
-   /* DON'T THINK WE NEED THIS
-   ldr x21, [x29, #24]     // c = goal
-   ldr x20, [x29, #32]     // b = start
-   ldr x19, [x29, #40]     // a = numDiscs
-   */
 if:
    /* Compare numDisks with 2 or (numDisks - 2)*/
-   CMP x19, #2
+   cmp x19, #2
    /* Check if less than, else branch to else */
-   B.GE else
-   
-   /* set print function's start to incoming start */
-                                                              /* parameters for print correct ??? */
+   b.ge else
+   /* set print function’s start to incoming start */
    mov x0, x20 //start
+   /* set print function’s end to goal */
    mov x1, x21 //goal
-   BL print
-   mov x0, #1   //return 1
-   B endif
-   //mov x0, x20 // ASSUMING X0 IS START PARAMETER FOR PRINT
-   /* set print function's end to goal */
-   //mov x1, x21 // ASSUMING X1 IS END PARAMEETER FOR PRINT
-
    /* call print function */
-   //bl print
+   bl print
    /* Set return register to 1 */
-   //mov x0 #1
-   //str x0, [x29, 16]       /* location of return value (above frame pointer) in respect to frame pointer */
-
+   mov x0, #1   //return 1
    /* branch to endif */
-   //br endif
-
+   b endif
 else:
-
    /* Use a callee-saved variable for temp and set it to 6 */
    mov x22, #6
    /* Subract start from temp and store to itself */
@@ -88,7 +61,8 @@ else:
    mov x1, x20    //make start = start
          /* Set end parameter as temp */
    mov x2, x22    //make end = peg
-   BL towers
+   /* Call towers function */
+   bl towers
    mov x23, x0    //steps = answer
 
    //numdisks = 1, start, end
@@ -96,17 +70,21 @@ else:
    mov x0, #1     //make numDisks = 1
    mov x1, x20    //make start = start
    mov x2, x21    //make end = end
-   BL towers
+   bl towers
+   /* Add result to total steps so far */
    add x23, x23, x0    //steps += answer
 
    //numdisks -1, peg, end
+   /* Set numDisks parameter to original numDisks - 1 */
    sub x0, x19, #1   //make numDisks = numDisks -1 
+   /* set start parameter to temp */
    mov x1, x22    //make start = peg
+   /* set goal parameter to original goal */
    mov x2, x21    //make end = end
-   BL towers
-   add x23, x23, x0    //steps += answer
-   
+   /* Call towers function */
+   bl towers
    /* Add result to total steps so far and save it to return register */
+   add x23, x23, x0    //steps += answer
    mov x0, x23
 
 
@@ -121,15 +99,13 @@ else:
 
 
    /* Set goal parameter to original goal */
-   /* Call towers function */
-   /* Add result to total steps so far */
+
+
    
-   /* Set numDisks parameter to original numDisks - 1 */
-   /* set start parameter to temp */
-   /* set goal parameter to original goal */
-   /* Call towers function */
-   /* Add result to total steps so far and save it to return register */
-                     //
+
+
+
+
 endif:
    /* Restore Registers */
    ldp   x19, x20, [sp, 16]

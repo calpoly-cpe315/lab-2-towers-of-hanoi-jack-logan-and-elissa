@@ -1,7 +1,7 @@
 	.arch armv8-a
 	.text
 
-@ print function is complete, no modifications needed
+// print function is complete, no modifications needed
     .global	print
 print:
       stp    x29, x30, [sp, -16]! // Store FP, LR.
@@ -20,50 +20,65 @@ startstring:
     .global	towers
 towers:
    /* Callee setup ???? */
-   sub sp, sp, #8 // for return value (above the return address x30)
-   stp x29, x30, [sp, -16]!  // Store FP, LR.
-   mov x29, sp    /* same as add x29, sp, 0 */
-
-
+   // think this line doesn't work, gives us massive error -> sub sp, sp, #8 // for return value (above the return address x30)
    /* Save callee-saved registers to stack */
-   sub sp, sp, #40         /* reserve 32 bytes for 5 callee-save registers */
-   add sp, sp, #40         /* change stack pointer to bottom of the 5 callee-save registers */
-
-   str x19, [x29, #-8]     /* preva = numDiscs */ 
-   str x20, [x29, #-16]    /* prevb = start */
-   str x21, [x29, #-24]    /* prevc = goal */
-   str x22, [x29, #-32]    /* local variable d = temp = peg */
-   str x23, [x29, #-40]    /* local variable e = steps */
-   
+   stp x29, x30, [sp, -64]!   // Store FP, LR, move SP, reserver 6 registers space
+   mov x29, sp                // Make FP = new SP
+   stp x19, x20, [sp, 16]     //x19 = numDisks, x20 = start
+   stp x21, x22, [sp, 32]     //x21 = goal, x22 = peg
+   stp x23, x24, [sp, 48]     //x23 = steps, x24 = ???
 
    /* Save a copy of all 3 incoming parameters to callee-saved registers */
-   ldr x21, [x29, #24]     /* c = goal */
-   ldr x20, [x29, #32]     /* b = start */
-   ldr x19, [x29, #40]     /* a = numDiscs */
+   mov x19, x0 //numDisks
+   mov x20, x1 //start
+   mov x21, x2 //goal
 
+   /* DON'T THINK WE NEED THIS
+   str x22, [x29, #-32]    // local variable d = temp = peg
+   str x23, [x29, #-40]    // local variable e = steps
+   */
+
+   //todo
+
+
+   /* DON'T THINK WE NEED THIS
+   ldr x21, [x29, #24]     // c = goal
+   ldr x20, [x29, #32]     // b = start
+   ldr x19, [x29, #40]     // a = numDiscs
+   */
 if:
    /* Compare numDisks with 2 or (numDisks - 2)*/
-   CMP x19, #-2
+   CMP x19, #2
    /* Check if less than, else branch to else */
-   B.LT else
+   B.GE else
    
    /* set print function's start to incoming start */
                                                               /* parameters for print correct ??? */
-   mov x0, x20 // ASSUMING X0 IS START PARAMETER FOR PRINT
+   mov x0, x20 //start
+   mov x1, x21 //goal
+   BL print
+   B endif
+   //mov x0, x20 // ASSUMING X0 IS START PARAMETER FOR PRINT
    /* set print function's end to goal */
-   mov x1, x21 // ASSUMING X1 IS END PARAMEETER FOR PRINT
+   //mov x1, x21 // ASSUMING X1 IS END PARAMEETER FOR PRINT
 
    /* call print function */
-   bl print
-
+   //bl print
    /* Set return register to 1 */
-   mov x0 #1
-   str x0, [x29, 16]       /* location of return value (above frame pointer) in respect to frame pointer */
+   //mov x0 #1
+   //str x0, [x29, 16]       /* location of return value (above frame pointer) in respect to frame pointer */
 
    /* branch to endif */
-   br endif
+   //br endif
 
 else:
+
+	peg = 6 - start - goal;		// Calculate intermediate peg.
+	steps  = towers(numDiscs-1, start, peg); 
+	steps += towers(1, start, goal); 
+	steps += towers(numDiscs-1, peg, goal); 
+	return steps; 
+
    /* Use a callee-saved variable for temp and set it to 6 */
    mov x22, #6
    /* Subract start from temp and store to itself */
@@ -74,16 +89,18 @@ else:
 
    /* subtract 1 from original numDisks and store it to numDisks parameter */
    sub x19, x19, #1
+   mov x0, x19
+   mov x1, x20
+   mov x2, x21
+   B tower
 
    // I think this is start of caller setup
-   str x19, [sp, #-8]!     // push numDisks parameter
-   str x20, [sp, *-8]!     // push start parameter (unchanged)
+
    /* Set end parameter as temp */
-   str x22, [sp, #-8]!     // push temp=peg=goal (in this case peg is new goal) parameter
 
 
    /* Call towers function */    //start of recursive call to towers
-   bl towers
+   //bl towers
    /* Save result to callee-saved register for total steps */
                                                                         //// NEED TO DO
    /* Set numDiscs parameter to 1 */
@@ -100,15 +117,17 @@ else:
                      //
 endif:
    /* Restore Registers */
-   ldr x19, [x29, #-8]
-   ldr x20, [x29, #-16]
-   ldr x21, [x29, #-24]
-   ldr x22, [x29, #-32]
-   ldr x23, [x29, #-40]
+   ldr w0, [x29, #-8]
+   ldr x1, [x29, #-16]
+   ldr x2, [x29, #-24]
+   //ldr x22, [x29, #-32]
+   //ldr x23, [x29, #-40]
+   add sp, sp, #40         //deallocate 5 registers from stack
    /* Return from towers function */
-                              //
+   ldp x29, x30, [sp], 16  //restore FP and LR, restore SP
+   ret
 
-@ Function main is complete, no modifications needed
+//Function main is complete, no modifications needed
     .global	main
 main:
       stp    x29, x30, [sp, -32]!

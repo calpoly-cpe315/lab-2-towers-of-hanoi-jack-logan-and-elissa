@@ -54,9 +54,8 @@ else:
    /* Subtract goal from temp and store to itself (temp = 6 - start - goal)*/
    sub x22, x22, x21
 
-
    /* subtract 1 from original numDisks and store it to numDisks parameter */
-   //numdisks -1, start, peg
+   // Parameters are: numdisks -1, start, peg
    sub x0, x19, #1   //make numDisks = numDisks -1 
    mov x1, x20    //make start = start
          /* Set end parameter as temp */
@@ -65,7 +64,7 @@ else:
    bl towers
    mov x23, x0    //steps = answer
 
-   //numdisks = 1, start, end
+   // Parameters are: numdisks =1 , start, end
       /* Set numDiscs parameter to 1 */
    mov x0, #1     //make numDisks = 1
    mov x1, x20    //make start = start
@@ -73,8 +72,8 @@ else:
    bl towers
    /* Add result to total steps so far */
    add x23, x23, x0    //steps += answer
-
-   //numdisks -1, peg, end
+   
+   // Parameters are: numdisks -1, peg, end
    /* Set numDisks parameter to original numDisks - 1 */
    sub x0, x19, #1   //make numDisks = numDisks -1 
    /* set start parameter to temp */
@@ -86,25 +85,6 @@ else:
    /* Add result to total steps so far and save it to return register */
    add x23, x23, x0    //steps += answer
    mov x0, x23
-
-
-   /* Call towers function */    //start of recursive call to towers
-   //bl towers
-   /* Save result to callee-saved register for total steps */
-                                                                        //// NEED TO DO
-
-
-
-   /* Set start parameter to original start */
-
-
-   /* Set goal parameter to original goal */
-
-
-   
-
-
-
 
 endif:
    /* Restore Registers */

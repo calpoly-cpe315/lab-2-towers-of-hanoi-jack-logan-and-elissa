@@ -6,6 +6,9 @@ Jack Meyers          JackMeiers
 Logan Cable          lcable99
 Elissa Covarrubias   elcovarr
 
+Compilation/Run Directions
+type ``make``
+
 The ``towers.s`` file is what you will modifiy. There are comments
 to guide your implementation.
 

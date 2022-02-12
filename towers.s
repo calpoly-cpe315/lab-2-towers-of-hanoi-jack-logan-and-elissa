@@ -57,6 +57,7 @@ if:
    mov x0, x20 //start
    mov x1, x21 //goal
    BL print
+   mov x0, #1   //return 1
    B endif
    //mov x0, x20 // ASSUMING X0 IS START PARAMETER FOR PRINT
    /* set print function's end to goal */
@@ -73,12 +74,6 @@ if:
 
 else:
 
-	peg = 6 - start - goal;		// Calculate intermediate peg.
-	steps  = towers(numDiscs-1, start, peg); 
-	steps += towers(1, start, goal); 
-	steps += towers(numDiscs-1, peg, goal); 
-	return steps; 
-
    /* Use a callee-saved variable for temp and set it to 6 */
    mov x22, #6
    /* Subract start from temp and store to itself */
@@ -88,23 +83,43 @@ else:
 
 
    /* subtract 1 from original numDisks and store it to numDisks parameter */
-   sub x19, x19, #1
-   mov x0, x19
-   mov x1, x20
-   mov x2, x21
-   B tower
+   //numdisks -1, start, peg
+   sub x0, x19, #1   //make numDisks = numDisks -1 
+   mov x1, x20    //make start = start
+         /* Set end parameter as temp */
+   mov x2, x22    //make end = peg
+   BL towers
+   mov x23, x0    //steps = answer
 
-   // I think this is start of caller setup
+   //numdisks = 1, start, end
+      /* Set numDiscs parameter to 1 */
+   mov x0, #1     //make numDisks = 1
+   mov x1, x20    //make start = start
+   mov x2, x21    //make end = end
+   BL towers
+   add x23, x23, x0    //steps += answer
 
-   /* Set end parameter as temp */
+   //numdisks -1, peg, end
+   sub x0, x19, #1   //make numDisks = numDisks -1 
+   mov x1, x22    //make start = peg
+   mov x2, x21    //make end = end
+   BL towers
+   add x23, x23, x0    //steps += answer
+   
+   /* Add result to total steps so far and save it to return register */
+   mov x0, x23
 
 
    /* Call towers function */    //start of recursive call to towers
    //bl towers
    /* Save result to callee-saved register for total steps */
                                                                         //// NEED TO DO
-   /* Set numDiscs parameter to 1 */
+
+
+
    /* Set start parameter to original start */
+
+
    /* Set goal parameter to original goal */
    /* Call towers function */
    /* Add result to total steps so far */
@@ -117,14 +132,12 @@ else:
                      //
 endif:
    /* Restore Registers */
-   ldr w0, [x29, #-8]
-   ldr x1, [x29, #-16]
-   ldr x2, [x29, #-24]
-   //ldr x22, [x29, #-32]
-   //ldr x23, [x29, #-40]
-   add sp, sp, #40         //deallocate 5 registers from stack
+   ldp   x19, x20, [sp, 16]
+   ldp   x21, x22, [sp, 32]
+   ldp   x23, x24, [sp, 48]
+
    /* Return from towers function */
-   ldp x29, x30, [sp], 16  //restore FP and LR, restore SP
+   ldp x29, x30, [sp], 64  //restore FP and LR, restore SP, deallocate
    ret
 
 //Function main is complete, no modifications needed

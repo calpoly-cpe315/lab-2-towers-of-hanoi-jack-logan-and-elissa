@@ -83,21 +83,21 @@ else:
 
 
    /* subtract 1 from original numDisks and store it to numDisks parameter */
-   //numdisks -1, start, peg
+   // Parameters are: numdisks -1, start, peg
    sub x0, x19, #1   //make numDisks = numDisks -1 
-   mov x1, x20    //make start = start
-         /* Set end parameter as temp */
-   mov x2, x22    //make end = peg
+   mov x1, x20       //make start = start
+   /* Set end parameter as temp */
+   mov x2, x22       //make end = peg
    BL towers
-   mov x23, x0    //steps = answer
+   mov x23, x0       //steps = answer
 
-   //numdisks = 1, start, end
-      /* Set numDiscs parameter to 1 */
-   mov x0, #1     //make numDisks = 1
-   mov x1, x20    //make start = start
-   mov x2, x21    //make end = end
+   // Parameters are: numdisks = 1, start, end
+   /* Set numDiscs parameter to 1 */
+   mov x0, #1        //make numDisks = 1
+   mov x1, x20       //make start = start
+   mov x2, x21       //make end = end
    BL towers
-   add x23, x23, x0    //steps += answer
+   add x23, x23, x0  //steps += answer
 
    //numdisks -1, peg, end
    sub x0, x19, #1   //make numDisks = numDisks -1 
